@@ -17,6 +17,7 @@ knitr::opts_chunk$set(
 RSA-911 case reports contain data collected by disability resource clinics with information about participants' demographics, enrolled services, and employment outcomes. This format of this data is standard for all RSA-911 dataset but each individual dataset required intensive and detailed cleaning. The beautiful.mind package organizes and cleans these dataset into a user friendly format that is ready for further analyses. 
 
 The first step is to load the library into your R session. 
+To install, use devtools::install_github("rtaylor456/beautiful.minds").
 ```{r setup}
 library(beautiful.minds)
 ```
