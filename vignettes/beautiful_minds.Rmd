@@ -1,0 +1,118 @@
+---
+title: "beautiful.minds"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{beautiful.minds}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#"
+)
+```
+
+RSA-911 case reports contain data collected by disability resource clinics with information about participants' demographics, enrolled services, and employment outcomes. This format of this data is standard for all RSA-911 dataset but each individual dataset required intensive and detailed cleaning. The beautiful.mind package organizes and cleans these dataset into a user friendly format that is ready for further analyses. 
+
+
+The first step is to load the library into your R session. 
+```{r setup}
+library(beautiful.minds)
+```
+
+Most RSA-911 datasets have over 300,000 observations and thus are overwhelming to work with. For simplicity and learning purposes, the beautiful.minds packages contains a random subset of the RSA-911 dataset: PY2020exit called py_20_sample. It contains the standard 307 variables consistent with RSA-911 file formatting. There are a variety of column types including continuous variables, nominal variables, dates, and character variables. A small subset of what is commonly seen for this type of data is shown below. 
+```{r}
+# Names of RSA-911 datasets
+head(names(py_20_sample))
+tail(names(py_20_sample))
+
+# Common data within RSA-911 datasets
+py_20_sample[1:5, 1:5]
+py_20_sample[1:5, 302:307]
+```
+
+Date variables are important for understanding trends over time but most reports have them recorded as continuous numeric values which can't be easily handled by base R's as.date function. The beautiful.minds package contains the handle_date function which correctly classifies dates for easy use in further exploration. This function converts a RSA-911 date variable written in order YYYYMMDD as one number to the appropriate date.
+```{r}
+# Select a date column
+application_date <- py_20_sample$ApplicationDate
+
+# The original dataset date before being cleaned
+head(application_date)
+
+# The 'clean' date using the handle_date function
+head(handle_date(application_date))
+```
+
+One of the most common issues with RSA-911 files are NA values. Most NA values are inaccuratly reported and will be adjusted in the detox function (shown below). Not all NA values are fixed however in the detox function, some provide important and useful information. The analyze_nas function examines the inputted dataset for NA values and outputs a table of counts and proportions of NAs for each appropriate variable in a data frame within the R console and a generated csv file, written to the current working directory. 
+
+This csv provided a way for the user to clearly see the NA values and where irregularities lie within their data. The use can change the csv files' name using the output_filename parameter. The default write the file as "NA_Proportions.csv". 
+
+The results csv will be a data frame with columns Column_Index, Column_Name, NA_Count, NA_Proportion. The rows consist of the columns in the inputted data frame which contain NAs. If there are no NAs in the inputted data frame, an empty data frame is returned. Additionally, a csv is written to the current working directory with the same information.
+
+Since a csv is written to the users working directory, we have this code chunk set to not evaluate to keep from cluttering up the users device but the code and process are as shown as would be used in every day use. 
+```{r, eval = FALSE}
+# Analyze the NA values and use the default name
+analyze_nas(df = py_20_sample)
+
+# Change the file name 
+analyze_nas(df = py_20_sample, output_filename = "NA_report.csv")
+
+```
+
+
+The detox function contains all the grunt work of cleaning, preparing, and restructuring an RSA-911 datsets for analysis and visualization. The process includes
+tailored NA imputation, variable type conversion, and reorganization of variables. There are three "optional" parameters that can be turned on or off within this function, NA_check, unidentified_to_0, and remove_strictly_NA. 
+
+NA_check, which defaults to true, will  run the analyze_nas function (as seen above) after the cleaning process is over if set to TRUE. This is extremely useful as it will show the user, in a csv file, the remaining NA and other odd values after the dataset has been cleaned. 
+
+unidentified_to_0, will convert values of 9 to 0 within variables with possible values of 0, 1, and 9 (where 0 represents "did not identify). This is most commonly used for demographic data such as gender and ethnicity. 
+
+remove_strictly_NA, will identify and remove variables with exclusively NA values after the data have been cleaned when set to TRUE. 
+
+We will show how the detox functions works using small comparisions (since it would be too overwhelming to compare the entire dataset). We will also show how changing the parameters will affect the output. We will leave NA_check = FALSE for all examples since, as before, we do not want to write csv files to the readers computer for examples.
+```{r}
+# Run detox on a RSA-911 dataset with default values
+results <- detox(data = py_20_sample, NA_check = FALSE)
+
+# Program Year: removed unnecessary characters that will interfere with analysis
+head(py_20_sample$ProgramYear)
+head(results$programyear)
+
+# Eligibility Date: some NA values are left untouched as they are truly NA values. 
+#   For this example, an NA value could mean this person does not have an 
+#   eligibility date
+head(py_20_sample$EligibilityDate, 10)
+head(results$eligibilitydate, 10)
+
+# Purchase Provider Type: 1 if service was provided and 0 if the service was not provided
+head(py_20_sample$jecPurchaseProviderType)
+head(results$jecpurchaseprovidertype)
+
+# Some variables will change based on the parameters 
+# Rerun the detox function with unidentified to 0 = true
+results_2 <- detox(data = py_20_sample, NA_check = FALSE, unidentified_to_0 = TRUE)
+
+# Adult: 0 if not an adult, 1 if an adult, 9 is unidentified  
+# Original
+head(py_20_sample$Adult)
+# Detox with unidentified = FALSE
+head(results$adult)
+# Detox with unidentified = TRUE
+head(results_2$adult)
+
+
+# If remove_strictlyNA = TRUE, the dimensions of the dataset with decrease in column size because columns that are entirely NA values after being cleaned will be removed.
+results_remove <- detox(data = py_20_sample, NA_check = FALSE, 
+                        unidentified_to_0 = TRUE, 
+                        remove_strictly_NA = TRUE)
+
+# Original dimensions of the dataset (returns row column)
+dim(py_20_sample)
+# Dimensions of the detoxed dataset with all NA columns removed
+dim(results_remove)
+
+
+```
+
