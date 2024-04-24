@@ -17,6 +17,8 @@
 #'     empty data frame is returned. Additionally, a csv is written to the
 #'     current working directory with the same information.
 #' @export
+#' @import data.table
+#' @importFrom utils write.csv
 analyze_nas <- function(df, output_filename = "NA_Proportions.csv") {
   na_info <- lapply(names(df), function(col_name) {
     column <- df[[col_name]]

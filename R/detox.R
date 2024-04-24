@@ -9,7 +9,7 @@
 #' @param NA_check TRUE or FALSE, defaults to TRUE. If TRUE, Runs analyze_nas
 #'    function on dataset after cleaning to output information on remaining NA
 #'    values.
-#' @param unidentified_to_O TRUE or FALSE, defaults to FALSE. If TRUE, converts
+#' @param unidentified_to_0 TRUE or FALSE, defaults to FALSE. If TRUE, converts
 #'.   values of 9 to 0 within variables with possible values of 0, 1, 9 (where 9
 #'.   represents "did not identify").
 #' @param remove_strictly_NA TRUE or FALSE, defaults to FALSE. If TRUE,
@@ -19,6 +19,8 @@
 #' @returns The cleaned dataset (additionally, a table of NA information if
 #'     NA_check param is set to TRUE. See analyze_nas documentation for info.)
 #' @export
+#' @import data.table
+#' @import tidyverse
 detox <- function(data, NA_check = TRUE, unidentified_to_0 = FALSE,
                       remove_strictly_NA = FALSE) {
   # Ensure data is a data.table

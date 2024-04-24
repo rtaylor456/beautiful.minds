@@ -18,13 +18,13 @@ detox(
 function on dataset after cleaning to output information on remaining NA
 values.}
 
+\item{unidentified_to_0}{TRUE or FALSE, defaults to FALSE. If TRUE, converts
+.   values of 9 to 0 within variables with possible values of 0, 1, 9 (where 9
+.   represents "did not identify").}
+
 \item{remove_strictly_NA}{TRUE or FALSE, defaults to FALSE. If TRUE,
 .   identifies and removes variables with exclusively NA values after the data
 .   have been cleaned.}
-
-\item{unidentified_to_O}{TRUE or FALSE, defaults to FALSE. If TRUE, converts
-.   values of 9 to 0 within variables with possible values of 0, 1, 9 (where 9
-.   represents "did not identify").}
 }
 \value{
 The cleaned dataset (additionally, a table of NA information if
