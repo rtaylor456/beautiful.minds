@@ -64,9 +64,9 @@ head(handle_date(application_date))
 
 ###### NA Values
 
-One of the most common issues with RSA-911 files are NA values. Most NA values are inaccurately reported and will be adjusted in the detox function (shown below). However, not all NA values are fixed in the detox function as some provide important and useful information. The analyze_nas function examines the inputted dataset for NA values and outputs a table of counts and proportions of NAs for each appropriate variable in a data frame within the R console along with a generated csv file written to the current working directory, if the user selects this option. 
+One of the most common issues with RSA-911 files are NA values. Most NA values are inaccurately reported and will be adjusted in the detox function (shown below). However, not all NA values are fixed in the detox function as some provide important and useful information. The `analyze_nas` function examines the inputted dataset for NA values and outputs a table of counts and proportions of NAs for each appropriate variable in a data frame within the R console along with a generated csv file written to the current working directory, if the user selects this option. 
 
-When the parameter `na_file` is set to the default (TRUE), the resulting csv provides a way for the user to clearly see the NA values and where irregularities lie within their data. The user can change the csv files' name using the output_filename parameter. The default writes the file as "NA_Proportions.csv". Additionally, the user can set the function to not write the csv file. 
+When the parameter `na_file` is set to the default (TRUE), the resulting csv provides a way for the user to clearly see the NA values and where irregularities lie within their data. The user can change the csv files' name using the `output_filename` parameter. The default writes the file as "NA_Proportions.csv". Additionally, the user can set the function to not write the csv file. 
 
 When applicable, the resulting csv file will be a data frame with Column_Index, Column_Name, NA_Count, and NA_Proportion. The rows consist of the columns in the inputted data frame which contain NAs. If there are no NAs in the inputted data frame, an empty data frame is returned. Additionally, a csv is written to the current working directory with the same information.
 
@@ -81,7 +81,7 @@ analyze_nas(df = py_20_sample, na_file = FALSE)
 ###### Parameters
 
 The detox function contains all the meticulous work of cleaning, preparing, and restructuring an RSA-911 datset for analysis and visualization. The process includes
-tailored NA imputation, variable type conversion, and reorganization of variables. There are five "optional" parameters that can be turned on or off within this function, na_check, unidentified_to_0, remove_strictly_na, na_file, and full_table_print. 
+tailored NA imputation, variable type conversion, and reorganization of variables. There are five "optional" parameters that can be turned on or off within this function, `na_check`, `unidentified_to_0`, `remove_strictly_na`, `na_file`, and `full_table_print`. 
 
 #### na_check  
 
