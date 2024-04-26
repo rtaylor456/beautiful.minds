@@ -6,33 +6,43 @@
 \usage{
 detox(
   data,
-  NA_check = TRUE,
+  na_check = TRUE,
   unidentified_to_0 = FALSE,
-  remove_strictly_NA = FALSE
+  remove_strictly_na = FALSE,
+  na_file = TRUE,
+  full_table_print = FALSE
 )
 }
 \arguments{
 \item{data}{An RSA-911 dataset.}
 
-\item{NA_check}{TRUE or FALSE, defaults to TRUE. If TRUE, Runs analyze_nas
-function on dataset after cleaning to output information on remaining NA
+\item{na_check}{TRUE or FALSE, defaults to TRUE. If TRUE, runs analyze_nas
+function on dataset, after cleaning, to output information on remaining NA
 values.}
 
 \item{unidentified_to_0}{TRUE or FALSE, defaults to FALSE. If TRUE, converts
-.   values of 9 to 0 within variables with possible values of 0, 1, 9 (where 9
-.   represents "did not identify").}
+values of 9 to 0 within variables with possible values of 0, 1, 9 (where 9
+represents "did not identify").}
 
-\item{remove_strictly_NA}{TRUE or FALSE, defaults to FALSE. If TRUE,
-.   identifies and removes variables with exclusively NA values after the data
-.   have been cleaned.}
+\item{remove_strictly_na}{TRUE or FALSE, defaults to FALSE. If TRUE,
+identifies and removes variables with exclusively NA values after the data
+have been cleaned.}
+
+\item{na_file}{TRUE or FALSE , if TRUE, this will write a csv file with
+the table of NA counts and proportions. If set to FALSE, it will print
+the table but not generate a csv file.}
+
+\item{full_table_print}{TRUE or FALSE, defaults to FALSE. If FALSE, the NAs
+table will only print the head of the resulting table. If TRUE, the NAs
+table will print the entire table of NAs.}
 }
 \value{
 The cleaned dataset (additionally, a table of NA information if
-NA_check param is set to TRUE. See analyze_nas documentation for info.)
+na_check param is set to TRUE. See analyze_nas documentation for info.)
 }
 \description{
 This function is a one-stop for cleaning and restructuring an RSA-911 dataset
-.   in order to prepare it for analysis and visualization. Processed include
-.   tailored NA imputation, variable type conversion, and reorganization of
-.   variables.
+in order to prepare it for analysis and visualization. Processed include
+tailored NA imputation, variable type conversion, and reorganization of
+variables.
 }

@@ -4,7 +4,12 @@
 \alias{analyze_nas}
 \title{Analyze and produce information on NAs in dataset.}
 \usage{
-analyze_nas(df, output_filename = "NA_Proportions.csv")
+analyze_nas(
+  df,
+  output_filename = "NA_Proportions.csv",
+  na_file = TRUE,
+  full_table_print = FALSE
+)
 }
 \arguments{
 \item{df}{The data frame.}
@@ -13,6 +18,14 @@ analyze_nas(df, output_filename = "NA_Proportions.csv")
 table of NA information. Default is "NA_Proportions.csv". Note: leaving
 this default will cause the file to overwrite when run more than once in
 the same directory.}
+
+\item{na_file}{When set to TRUE, this will write a csv file with
+the table of NA counts and proportions. If set to FALSE, it will print
+the table but not generate a csv file.}
+
+\item{full_table_print}{TRUE or FALSE, defaults to FALSE. If FALSE, the NAs
+table will only print the head of the resulting table. If TRUE, the NAs
+table will print the entire table of NAs.}
 }
 \value{
 A data frame with columns Column_Index, Column_Name, NA_Count,

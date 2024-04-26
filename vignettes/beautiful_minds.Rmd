@@ -1,5 +1,6 @@
 ---
 title: "beautiful.minds"
+authors: "Ruth Taylor, Randi Hovey, April Knight, Spencer DenBleyker"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{beautiful.minds}
@@ -14,15 +15,29 @@ knitr::opts_chunk$set(
 )
 ```
 
-RSA-911 case reports contain data collected by disability resource clinics with information about participants' demographics, enrolled services, and employment outcomes. This format of this data is standard for all RSA-911 dataset but each individual dataset required intensive and detailed cleaning. The beautiful.mind package organizes and cleans these dataset into a user friendly format that is ready for further analyses. 
+## Introduction
 
-The first step is to load the library into your R session. 
-To install, use devtools::install_github("rtaylor456/beautiful.minds").
+The RSA-911 datasets are critical repositories of case reports collected by disability resource clinics. These reports encompass a wealth of data regarding participants, including demographics, the services they are enrolled in, and the outcomes of their employment endeavors. Primarily, this data is utilized to monitor the efficacy of Vocational Rehabilitation (VR) agencies, ensuring their compliance with the Rehabilitation Act of 1973. The act mandates that these agencies provide equitable opportunities for employment and independence to people with disabilities. See the following link for more information: 
+https://rsa.ed.gov/performance/rsa-911-policy-directive . 
+
+## Motivation
+
+The RSA-911 data sets serve a dual purpose: not only do they help in the administrative oversight and enhancement of VR services, but they are also invaluable to researchers. By analyzing these datasets, researchers can identify which services yield the most successful outcomes for individuals with disabilities who are supported by state and federal VR agencies. This analysis is pivotal for shaping future policies and improving service delivery to this demographic.  
+
+However, despite its utility, the data presented in RSA-911 datasets is not immediately ready for analysis. Each dataset requires thorough and meticulous cleaning due to its complexity and the standardization of its format across different reporting periods and jurisdictions. This preprocessing is essential to ensure accuracy and reliability in research findings.
+
+To address this challenge, the `beautiful.mind` package has been developed. This tool streamlines the process by organizing and cleaning RSA-911 datasets into a format that is more accessible and user-friendly. With `beautiful.mind`, researchers can more easily transform raw data into a structured form that is primed for further analysis, thus facilitating deeper insights and more robust conclusions about the effectiveness of VR services without all the complex data wrangling. 
+
+## Installation
+
+The package can be installed through `devtools::install_github("rtaylor456/beautiful.minds")` and then loaded into R.
 ```{r setup}
 library(beautiful.minds)
 ```
 
-Most RSA-911 datasets have over 300,000 observations and thus are overwhelming to work with. For simplicity and learning purposes, the beautiful.minds packages contains a random subset of the RSA-911 dataset: PY2020exit called py_20_sample. It contains the standard 307 variables consistent with RSA-911 file formatting. There are a variety of column types including continuous variables, nominal variables, dates, and character variables. A small subset of what is commonly seen for this type of data is shown below. 
+## Data Exploration and Challenges
+
+Most RSA-911 datasets have over 300,000 observations and thus are overwhelming to work with. For simplicity and learning purposes, the `beautiful.minds` packages contains a random subset of the RSA-911 dataset: PY2020exit called py_20_sample. It contains the standard 307 variables consistent with RSA-911 file formatting. There are a variety of column types including continuous variables, nominal variables, dates, and character variables. A small subset of what is commonly seen for this type of data is shown below. 
 ```{r}
 # Names of RSA-911 datasets
 head(names(py_20_sample))
@@ -33,7 +48,9 @@ py_20_sample[1:5, 1:5]
 py_20_sample[1:5, 302:307]
 ```
 
-Date variables are important for understanding trends over time but most reports have them recorded as continuous numeric values which can't be easily handled by base R's as.date function. The beautiful.minds package contains the handle_date function which correctly classifies dates for easy use in further exploration. This function converts a RSA-911 date variable written in order YYYYMMDD as one number to the appropriate date.
+###### Date Variables
+
+Date variables are important for understanding trends over time but most reports have them recorded as continuous numeric values which can't be easily handled by base R's as.date function. The `beautiful.minds` package contains the `handle_date` function which correctly classifies dates for easy use in further exploration. This function converts an RSA-911 date variable written in order `YYYYMMDD` as `YYYY-MM-DD` for ease of exploration in R.
 ```{r}
 # Select a date column
 application_date <- py_20_sample$ApplicationDate
@@ -45,56 +62,110 @@ head(application_date)
 head(handle_date(application_date))
 ```
 
-One of the most common issues with RSA-911 files are NA values. Most NA values are inaccuratly reported and will be adjusted in the detox function (shown below). Not all NA values are fixed however in the detox function, some provide important and useful information. The analyze_nas function examines the inputted dataset for NA values and outputs a table of counts and proportions of NAs for each appropriate variable in a data frame within the R console and a generated csv file, written to the current working directory. 
+###### NA Values
 
-This csv provided a way for the user to clearly see the NA values and where irregularities lie within their data. The use can change the csv files' name using the output_filename parameter. The default write the file as "NA_Proportions.csv". 
+One of the most common issues with RSA-911 files are NA values. Most NA values are inaccurately reported and will be adjusted in the detox function (shown below). However, not all NA values are fixed in the detox function as some provide important and useful information. The analyze_nas function examines the inputted dataset for NA values and outputs a table of counts and proportions of NAs for each appropriate variable in a data frame within the R console along with a generated csv file written to the current working directory, if the user selects this option. 
 
-The results csv will be a data frame with columns Column_Index, Column_Name, NA_Count, NA_Proportion. The rows consist of the columns in the inputted data frame which contain NAs. If there are no NAs in the inputted data frame, an empty data frame is returned. Additionally, a csv is written to the current working directory with the same information.
+When the parameter `na_file` is set to the default (TRUE), the resulting csv provides a way for the user to clearly see the NA values and where irregularities lie within their data. The user can change the csv files' name using the output_filename parameter. The default writes the file as "NA_Proportions.csv". Additionally, the user can set the function to not write the csv file. 
 
-Since a csv is written to the users working directory, we have this code chunk set to not evaluate to keep from cluttering up the users device but the code and process are as shown as would be used in every day use. 
-```{r, eval = FALSE}
-# Analyze the NA values and use the default name
-analyze_nas(df = py_20_sample)
+When applicable, the resulting csv file will be a data frame with Column_Index, Column_Name, NA_Count, and NA_Proportion. The rows consist of the columns in the inputted data frame which contain NAs. If there are no NAs in the inputted data frame, an empty data frame is returned. Additionally, a csv is written to the current working directory with the same information.
 
-# Change the file name 
-analyze_nas(df = py_20_sample, output_filename = "NA_report.csv")
+Since a csv is written to the users working directory, we have set `na_file` to FALSE to avoid this for the reader. The output has been limited to the head of the resulting output for ease of reading.
+```{r}
+# Analyze the NA values without writing a csv file and only the head of the NA
+# table
+analyze_nas(df = py_20_sample, na_file = FALSE)
 
 ```
 
+###### Parameters
 
-The detox function contains all the grunt work of cleaning, preparing, and restructuring an RSA-911 datsets for analysis and visualization. The process includes
-tailored NA imputation, variable type conversion, and reorganization of variables. There are three "optional" parameters that can be turned on or off within this function, NA_check, unidentified_to_0, and remove_strictly_NA. 
+The detox function contains all the meticulous work of cleaning, preparing, and restructuring an RSA-911 datset for analysis and visualization. The process includes
+tailored NA imputation, variable type conversion, and reorganization of variables. There are five "optional" parameters that can be turned on or off within this function, na_check, unidentified_to_0, remove_strictly_na, na_file, and full_table_print. 
 
-NA_check, which defaults to true, will  run the analyze_nas function (as seen above) after the cleaning process is over if set to TRUE. This is extremely useful as it will show the user, in a csv file, the remaining NA and other odd values after the dataset has been cleaned. 
+#### na_check  
 
-unidentified_to_0, will convert values of 9 to 0 within variables with possible values of 0, 1, and 9 (where 0 represents "did not identify). This is most commonly used for demographic data such as gender and ethnicity. 
+The argument `na_check`, which defaults to true, will run the `analyze_nas` function (as seen above) after the cleaning process is over if set to TRUE. This is extremely useful as it will show the user, the remaining NA and other odd values after the dataset has been cleaned in a table printed to the console, as well as a csv file if desired. 
 
-remove_strictly_NA, will identify and remove variables with exclusively NA values after the data have been cleaned when set to TRUE. 
+```{r, eval = FALSE}
+# Analyze the NA values
+detox(df = py_20_sample)
 
-We will show how the detox functions works using small comparisions (since it would be too overwhelming to compare the entire dataset). We will also show how changing the parameters will affect the output. We will leave NA_check = FALSE for all examples since, as before, we do not want to write csv files to the readers computer for examples.
+# Don't analyze the NA values
+detox(df = py_20_sample, na_check = FALSE)
+```
+
+#### unidentified_to_0  
+
+The `unidentified_to_0` parameter, will convert values of 9 to 0 within variables with possible values of 0, 1, and 9 (where 0 represents "did not identify). This is most commonly used for demographic data such as gender and ethnicity. 
+
+```{r, eval = FALSE}
+# Analyze the NA values and convert values of 9 to 0 where necessary
+detox(df = py_20_sample, unidentified_to_0 = TRUE)
+```
+
+#### remove_strictly_na  
+
+The `remove_strictly_na` parameter, will identify and remove variables with exclusively NA values after the data have been cleaned when set to TRUE. 
+
+```{r, eval = FALSE}
+# Analyze the NA values and remove columns with exclusively NA values after
+# detox
+detox(df = py_20_sample, remove_strictly_na = TRUE)
+```
+
+#### na_file  
+
+The `na_file` parameter, which defaults to TRUE, allows the user to determine whether they would like to have the table of NA values and proportions saved to a csv file in their working directory or not.  
+
+```{r, eval = FALSE}
+# Analyze the NA values and write a csv file with default file name
+detox(df = py_20_sample)
+
+# Analyze the NA values without writing a csv file
+detox(df = py_20_sample, na_file = FALSE)
+```
+
+#### full_table_print
+
+The parameter `full_table_print` defaults to FALSE. This allows the user to determine whether they would like the NA table to print in full to the console or not. If this is set to TRUE, it will print all lines of the table. When left as FALSE, it will print just the head of the table.
+
+```{r, eval = FALSE}
+# Analyze the NA values and print only the head of the NA table
+detox(df = py_20_sample)
+
+# Analyze the NA values and print the entire NA table to the console
+detox(df = py_20_sample, full_table_print = TRUE)
+```
+
+###### Application  
+
+The following shows an example of the operation of the detox function as well as the output of the analyze_nas function. These examples have been carefully selected to provide clarity without creating an extensive dataset output. Additionally, this demonstrates the effects of modifying various parameters within the function. For the purpose of all examples, the na_file parameter will be set to FALSE to avoid writing CSV files to the user's computer.
 ```{r}
 # Run detox on a RSA-911 dataset with default values
-results <- detox(data = py_20_sample, NA_check = FALSE)
+results <- detox(data = py_20_sample, na_file = FALSE)
 
 # Program Year: removed unnecessary characters that will interfere with analysis
 head(py_20_sample$ProgramYear)
 head(results$programyear)
 
-# Eligibility Date: some NA values are left untouched as they are truly NA values. 
-#   For this example, an NA value could mean this person does not have an 
-#   eligibility date
+# Eligibility Date: some NA values are left untouched as they are truly NA
+#   values. For this example, an NA value could mean this person does not have
+#   an eligibility date
 head(py_20_sample$EligibilityDate, 10)
 head(results$eligibilitydate, 10)
 
-# Purchase Provider Type: 1 if service was provided and 0 if the service was not provided
+# Purchase Provider Type: 1 if service was provided and 0 if the service was
+#   not provided
 head(py_20_sample$jecPurchaseProviderType)
 head(results$jecpurchaseprovidertype)
 
-# Some variables will change based on the parameters 
+# Some variables will change based on the parameters
 # Rerun the detox function with unidentified to 0 = true
-results_2 <- detox(data = py_20_sample, NA_check = FALSE, unidentified_to_0 = TRUE)
+results_2 <- detox(data = py_20_sample, na_check = FALSE,
+                   unidentified_to_0 = TRUE)
 
-# Adult: 0 if not an adult, 1 if an adult, 9 is unidentified  
+# Adult: 0 if not an adult, 1 if an adult, 9 is unidentified
 # Original
 head(py_20_sample$Adult)
 # Detox with unidentified = FALSE
@@ -103,16 +174,26 @@ head(results$adult)
 head(results_2$adult)
 
 
-# If remove_strictlyNA = TRUE, the dimensions of the dataset with decrease in column size because columns that are entirely NA values after being cleaned will be removed.
-results_remove <- detox(data = py_20_sample, NA_check = FALSE, 
-                        unidentified_to_0 = TRUE, 
-                        remove_strictly_NA = TRUE)
+# If remove_strictly_na = TRUE, the dimensions of the dataset with decrease in
+#   column size because columns that are entirely NA values after being cleaned
+#   will be removed. Additionally, setting na_check to FALSE removes the return
+#   of a table with proportions.
+results_remove <- detox(data = py_20_sample, na_check = FALSE,
+                        unidentified_to_0 = TRUE,
+                        remove_strictly_na = TRUE)
 
 # Original dimensions of the dataset (returns row column)
 dim(py_20_sample)
 # Dimensions of the detoxed dataset with all NA columns removed
 dim(results_remove)
-
-
 ```
 
+## Conclusion
+
+In conclusion, the detox function represents an essential tool for researchers and practitioners working with the RSA-911 datasets. This function addresses the critical challenge of intensive and time-consuming data cleaning required to make such large-scale datasets usable for analysis. By automating the cleaning process, detox not only saves significant time and effort but also enhances the accuracy and reliability of the data.
+
+The package intelligently handles various data issues, such as inconsistent NA values, incorrect data types, and misformatted dates, which are common in the RSA-911 datasets. This ensures that the data is clean and correctly structured for meaningful analysis. For instance, its ability to convert ambiguous date formats into a standard format allows researchers to easily perform longitudinal studies and trend analyses, which are crucial for evaluating the effectiveness of vocational rehabilitation services over time.
+
+Moreover, the detox function’s optional parameters provide flexibility, enabling users to tailor the cleaning process to their specific needs. This adaptability is particularly valuable in a field where data accuracy directly impacts policy decisions and service delivery outcomes for individuals with disabilities.
+
+Overall, the detox function can empower researchers and enhance the impact of their work. By streamlining the data preparation process, `beautiful.minds` enables people to focus more on analysis and less on data management, leading to deeper insights and more robust conclusions about the effectiveness of vocational rehabilitation services. This ultimately contributes to better policy-making and improved outcomes for individuals with disabilities, underscoring the indispensable value of the detox function in the realm of disability research.
