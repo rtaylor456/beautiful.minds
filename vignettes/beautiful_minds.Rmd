@@ -177,7 +177,7 @@ unique(data_detoxed$sex)
 
 The `remove_strictly_na` parameter defaults to FALSE. When set to TRUE, it will identify and remove variables with exclusively NA values after the data have been cleaned. 
 
-```{r, eval = FALSE}
+```{r}
 # look at the NA summary BEFORE removing any variables
 data_detoxed <- detox(data = py_20_sample)
 

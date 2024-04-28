@@ -85,14 +85,6 @@ detox <- function(data, na_check = TRUE, na_file = FALSE,
   data[, (programyear_cols) := lapply(.SD, handle_year),
        .SDcols = programyear_cols]
 
-  # if (convert_sex) {
-  #   data[, "sex" := fifelse(sex == 2, 0, sex)]
-  # } else {
-  #   data[, "sex" := fifelse(sex == 0, 2, sex)]
-  # }
-  #
-  # sex_col <- "sex"
-  # replace_na(sex_col, 9)
 
   sex_cols <- grep("sex", names(data), value = TRUE)
   data[, (sex_cols) := lapply(.SD, function(x) handle_sex(x, convert_sex)),
@@ -111,46 +103,19 @@ detox <- function(data, na_check = TRUE, na_file = FALSE,
   all_demographic_cols <- c(demographic_cols, add_demographic_cols)
 
 
-  # replace_value <- ifelse(unidentified_to_0, 0, 9)
-  # replace_na(all_demographic_cols, replace_value)
-
-  # if (unidentified_to_0 && any(get(col) == 9)) {
-  #   data[get(col) == 9, (col) := 0]
-  # }
-
-  # # Check if unidentified_to_0 is TRUE and any values in demographic columns are 9
-  # if (unidentified_to_0 && any(colSums(data[,
-  #                                           ..all_demographic_cols] == 9) > 0)) {
-  #   # Replace values of 9 with 0 in the demographic columns
-  #   data[, (all_demographic_cols) := lapply(.SD, function(x) {
-  #     replace(x, x == 9, 0)}), .SDcols = all_demographic_cols]
-  # }
-
-  # Check if unidentified_to_0 is TRUE and any values in demographic columns are 9
-  # if (unidentified_to_0) {
-  #   data <- handle_nines(data, all_demographic_cols)
-  # }
-
   data[, (all_demographic_cols) := lapply(.SD, function(x){
     handle_nines(x, unidentified_to_0)
     }),
        .SDcols = all_demographic_cols]
 
-  # # NA Check and analysis
-  # if (na_check) {
-  #   analyze_nas(data, na_file = na_file, full_table_print = full_table_print)
-  # }
 
   # Remove strictly NA columns if specified
   if (remove_strictly_na) {
     na_summary <- sapply(data, function(x) sum(is.na(x)))
     cols_to_remove <- names(na_summary)[na_summary == nrow(data)]
 
-    # Debugging statements
-    print(na_summary)
-    print(cols_to_remove)
-
     if (length(cols_to_remove) > 0) {
+      print(cols_to_remove)
       data[, (cols_to_remove) := NULL]  # Correct use of `:=` to remove columns
       cat("Columns where all values are NAs have been removed from the data.\n")
     }
