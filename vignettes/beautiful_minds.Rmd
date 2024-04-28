@@ -48,11 +48,13 @@ py_20_sample[1:5, 1:5]
 py_20_sample[1:5, 302:307]
 ```
 
-###### Date Variables
+## Solution: Data Cleaning Functions
 
-Date variables are important for understanding trends over time but most reports have them recorded as continuous numeric values which can't be easily handled by base R's as.date function. The `beautiful.minds` package contains the `handle_date` function which correctly classifies dates for easy use in further exploration. This function converts an RSA-911 date variable written in order `YYYYMMDD` as `YYYY-MM-DD` for ease of exploration in R.
+### Date Variables: `handle_date`
+
+Date variables are important for understanding trends over time but most reports have them recorded as continuous numeric values which can't be easily handled by base R's as.date function. The `beautiful.minds` package contains the `handle_date` function which correctly classifies dates for easy use in further exploration. This function converts an RSA-911 date variable stored originally as simply a numeric object in order `YYYYMMDD` as a date object in format`YYYY-MM-DD` for ease of exploration in R.
 ```{r}
-# Select a date column
+# Select a date column, stored as a simple numeric
 application_date <- py_20_sample$ApplicationDate
 
 # The original dataset date before being cleaned
@@ -62,11 +64,12 @@ head(application_date)
 head(handle_date(application_date))
 ```
 
-###### NA Values
 
-One of the most common issues with RSA-911 files are NA values. Most NA values are inaccurately reported and will be adjusted in the detox function (shown below). However, not all NA values are fixed in the detox function as some provide important and useful information. The `analyze_nas` function examines the inputted dataset for NA values and outputs a table of counts and proportions of NAs for each appropriate variable in a data frame within the R console along with a generated csv file written to the current working directory, if the user selects this option. 
+### NA Values: `analyze_nas`
 
-When the parameter `na_file` is set to the default (TRUE), the resulting csv provides a way for the user to clearly see the NA values and where irregularities lie within their data. The user can change the csv files' name using the `output_filename` parameter. The default writes the file as "NA_Proportions.csv". Additionally, the user can set the function to not write the csv file. 
+One of the most common issues with RSA-911 files are NA values. Most NA values in RSA-911 are not missing values, but rather the representation of a description that does not apply. As such, these NAs will be converted to meaningful values in the detox function (shown below). In some cases, NA values are the most--or only--way to represent information and are not replaced in the detox function. The `analyze_nas` function examines the inputted dataset for NA values and outputs a table of counts and proportions of NAs for each appropriate variable in a data frame within the R console along with a generated csv file written to the current working directory, if the user selects this option. 
+
+When the parameter `na_file` is set to the default (TRUE), the resulting csv provides a way for the user to clearly see the NA values and where irregularities lie within their data. The user can change the csv files' name using the `output_filename` parameter. The default writes the file as "NA_Proportions.csv". Additionally, the user can set the function to not write the csv file, by setting `na_file` to FALSE. 
 
 When applicable, the resulting csv file will be a data frame with Column_Index, Column_Name, NA_Count, and NA_Proportion. The rows consist of the columns in the inputted data frame which contain NAs. If there are no NAs in the inputted data frame, an empty data frame is returned. Additionally, a csv is written to the current working directory with the same information.
 
@@ -77,71 +80,121 @@ Since a csv is written to the users working directory, we have set `na_file` to 
 analyze_nas(df = py_20_sample, na_file = FALSE)
 
 ```
+### One-Stop Cleaning: `detox`
 
 ###### Parameters
 
 The detox function contains all the meticulous work of cleaning, preparing, and restructuring an RSA-911 datset for analysis and visualization. The process includes
-tailored NA imputation, variable type conversion, and reorganization of variables. There are five "optional" parameters that can be turned on or off within this function, `na_check`, `unidentified_to_0`, `remove_strictly_na`, `na_file`, and `full_table_print`. 
+tailored NA imputation, variable type conversion, and reorganization of variables. There are five "optional" parameters that can be turned on or off within this function, `na_check`,
+`na_file`, `full_table_print`, `unidentified_to_0`, `convert_sex`, and `remove_strictly_na`. 
 
-#### na_check  
 
-The argument `na_check`, which defaults to true, will run the `analyze_nas` function (as seen above) after the cleaning process is over if set to TRUE. This is extremely useful as it will show the user, the remaining NA and other odd values after the dataset has been cleaned in a table printed to the console, as well as a csv file if desired. 
+#### `na_check`  
 
-```{r, eval = FALSE}
+The argument `na_check`, which defaults to true, will run the `analyze_nas` function (as seen above) after the cleaning process is over if set to TRUE. This is extremely useful as it will show the user the remaining NAs and other unfixed values, after the dataset has been cleaned in a table printed to the console, as well as a csv file if desired.
+Note: the parameters `na_file` and `full_table_print` may not be set equal to TRUE if
+`na_check` is set equal to FALSE. 
+
+```{r}
 # Analyze the NA values
-detox(df = py_20_sample)
+detox(data = py_20_sample)
 
 # Don't analyze the NA values
-detox(df = py_20_sample, na_check = FALSE)
+detox(data = py_20_sample, na_check = FALSE)
 ```
 
-#### unidentified_to_0  
 
-The `unidentified_to_0` parameter, will convert values of 9 to 0 within variables with possible values of 0, 1, and 9 (where 0 represents "did not identify). This is most commonly used for demographic data such as gender and ethnicity. 
+#### `na_file` 
+
+The `na_file` parameter, which defaults to FALSE, allows the user to determine whether they would like to have the table of NA values and proportions saved to a csv file in their working directory or not. If set to TRUE, the csv file will be created. For the remaining demonstrations, `na_file` will left as the default, FALSE.
+
+```{r}
+# Note, both lines of code will result in analyzing the NAs without writing a 
+#    csv file
+detox(data = py_20_sample)
+detox(data = py_20_sample, na_file = FALSE)
+```
 
 ```{r, eval = FALSE}
-# Analyze the NA values and convert values of 9 to 0 where necessary
-detox(df = py_20_sample, unidentified_to_0 = TRUE)
+# To analyze NAs and write a csv file summary
+# Note, this code will not be run in this demonstration
+detox(data = py_20_sample, na_file = TRUE)
 ```
 
-#### remove_strictly_na  
-
-The `remove_strictly_na` parameter, will identify and remove variables with exclusively NA values after the data have been cleaned when set to TRUE. 
-
-```{r, eval = FALSE}
-# Analyze the NA values and remove columns with exclusively NA values after
-# detox
-detox(df = py_20_sample, remove_strictly_na = TRUE)
-```
-
-#### na_file  
-
-The `na_file` parameter, which defaults to TRUE, allows the user to determine whether they would like to have the table of NA values and proportions saved to a csv file in their working directory or not.  
-
-```{r, eval = FALSE}
-# Analyze the NA values and write a csv file with default file name
-detox(df = py_20_sample)
-
-# Analyze the NA values without writing a csv file
-detox(df = py_20_sample, na_file = FALSE)
-```
-
-#### full_table_print
+#### `full_table_print`
 
 The parameter `full_table_print` defaults to FALSE. This allows the user to determine whether they would like the NA table to print in full to the console or not. If this is set to TRUE, it will print all lines of the table. When left as FALSE, it will print just the head of the table.
 
-```{r, eval = FALSE}
+```{r}
 # Analyze the NA values and print only the head of the NA table
-detox(df = py_20_sample)
+detox(data = py_20_sample)
 
 # Analyze the NA values and print the entire NA table to the console
-detox(df = py_20_sample, full_table_print = TRUE)
+detox(data = py_20_sample, full_table_print = TRUE)
 ```
 
-###### Application  
+
+#### `unidentified_to_0` 
+
+The `unidentified_to_0` parameter, will convert values of 9 to 0 within variables with possible values of 0, 1, and 9 (where 0 represents "did not identify"). This is most commonly used for demographic data such as ethnicity sub categories, veteran status, homelessness status, etc. 
+
+```{r}
+# Analyze the NA values and convert values of 9 to 0 where necessary
+data_detoxed <- detox(data = py_20_sample, unidentified_to_0 = TRUE)
+
+# check out some examples of variables where values of 9 would exist to 
+#   represent "did not identify" values
+lapply(py_20_sample[, c("AmerIndian","Asian", "Veteran", "HomelessOrRunaway",
+                        "FosterCareYouth")], unique)
+
+# check out some examples of variables where values of 9 would be converted to 0
+lapply(data_detoxed[, c("amerindian","asian", "veteran", "homelessorrunaway",
+                        "fostercareyouth")], unique)
+
+```
+
+
+#### `convert_sex`
+
+The `unidentified_to_0` parameter, will convert values of 9 to 0 within variables with possible values of 0, 1, and 9 (where 0 represents "did not identify"). This is most commonly used for demographic data such as ethnicity sub categories, veteran status, homelessness status, etc. 
+
+```{r}
+# Analyze the NA values and convert values of 9 to 0 where necessary
+data_detoxed <- detox(data = py_20_sample, convert_sex = TRUE)
+
+# look at the original values for Sex in py_20_sample
+unique(py_20_sample$Sex)
+
+# look at the new values, after converting to a more standard format
+unique(data_detoxed$sex)
+
+```
+
+
+
+#### `remove_strictly_na`  
+
+The `remove_strictly_na` parameter will identify and remove variables with exclusively NA values after the data have been cleaned when set to TRUE. 
+
+```{r, eval = FALSE}
+# look at the NA summary BEFORE removing any variables
+data_detoxed <- detox(data = py_20_sample)
+
+# now, look at the NA summary AFTER removing entirely empty variables
+data_detoxed <- detox(data = py_20_sample, remove_strictly_na = TRUE)
+
+# compare the original dimensions to the new dimensions, after removing 
+#   entirely empty variables
+dim(py_20_sample)
+dim(data_detoxed)
+# we can see, we've maintained all of our original rows, but we have removed our
+#   empty variables
+```
+
+## Application  
 
 The following shows an example of the operation of the detox function as well as the output of the analyze_nas function. These examples have been carefully selected to provide clarity without creating an extensive dataset output. Additionally, this demonstrates the effects of modifying various parameters within the function. For the purpose of all examples, the na_file parameter will be set to FALSE to avoid writing CSV files to the user's computer.
-```{r}
+```{r, eval = FALSE}
 # Run detox on a RSA-911 dataset with default values
 results <- detox(data = py_20_sample, na_file = FALSE)
 

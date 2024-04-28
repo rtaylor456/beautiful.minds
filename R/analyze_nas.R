@@ -6,13 +6,13 @@
 #'     current working directory.
 #'
 #' @param df The data frame.
+#' @param na_file TRUE or FALSE, defaults to FALSE. When set to TRUE, this will
+#'     write a csv file with the table of NA counts and proportions. If set to
+#'     FALSE, it will print the table but not generate a csv file.
 #' @param output_filename The filename for the written csv file, containing the
 #'     table of NA information. Default is "NA_Proportions.csv". Note: leaving
 #'     this default will cause the file to overwrite when run more than once in
 #'     the same directory.
-#' @param na_file When set to TRUE, this will write a csv file with
-#'     the table of NA counts and proportions. If set to FALSE, it will print
-#'     the table but not generate a csv file.
 #' @param full_table_print TRUE or FALSE, defaults to FALSE. If FALSE, the NAs
 #'     table will only print the head of the resulting table. If TRUE, the NAs
 #'     table will print the entire table of NAs.
@@ -26,8 +26,14 @@
 #' @import data.table
 #' @importFrom utils write.csv
 #' @importFrom utils head
-analyze_nas <- function(df, output_filename = "NA_Proportions.csv",
-                        na_file = TRUE, full_table_print = FALSE) {
+analyze_nas <- function(df, na_file = FALSE,
+                        output_filename = "NA_Proportions.csv",
+                        full_table_print = FALSE) {
+  # figure out how many digits to round to, based on number of observations
+  #   otherwise, it may appear that there are 100% NAs in a variable when there
+  #   are actually some values, simply based on rounding
+  num_digits <- nchar(nrow(df))
+
   na_info <- lapply(names(df), function(col_name) {
     column <- df[[col_name]]
     na_count <- sum(is.na(column))
@@ -36,7 +42,8 @@ analyze_nas <- function(df, output_filename = "NA_Proportions.csv",
       na_proportion <- na_count / total_count
       column_index <- which(names(df) == col_name)
       return(list(Column_Index = column_index, Column_Name = col_name,
-                  NA_Count = na_count, NA_Proportion = round(na_proportion, 2)))
+                  NA_Count = na_count, NA_Proportion = round(na_proportion,
+                                                             num_digits)))
     }
   })
 
@@ -53,7 +60,10 @@ analyze_nas <- function(df, output_filename = "NA_Proportions.csv",
     na_df <- na_df[order(-na_df$NA_Proportion), ]
 
     # Format the NA_Proportion to show as a fixed decimal place
-    na_df$NA_Proportion <- sprintf("%.2f", na_df$NA_Proportion)
+    # na_df$NA_Proportion <- sprintf("%.3f", na_df$NA_Proportion)
+
+    na_df$NA_Proportion <- sprintf(paste("%.", num_digits, "f", sep = ""),
+                                   na_df$NA_Proportion)
 
     # Writing the data frame to a CSV file if na_file is TRUE
     if (na_file) {

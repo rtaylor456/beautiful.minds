@@ -7,10 +7,11 @@
 detox(
   data,
   na_check = TRUE,
+  na_file = FALSE,
+  full_table_print = FALSE,
   unidentified_to_0 = FALSE,
-  remove_strictly_na = FALSE,
-  na_file = TRUE,
-  full_table_print = FALSE
+  convert_sex = FALSE,
+  remove_strictly_na = FALSE
 )
 }
 \arguments{
@@ -20,21 +21,25 @@ detox(
 function on dataset, after cleaning, to output information on remaining NA
 values.}
 
-\item{unidentified_to_0}{TRUE or FALSE, defaults to FALSE. If TRUE, converts
-values of 9 to 0 within variables with possible values of 0, 1, 9 (where 9
-represents "did not identify").}
-
-\item{remove_strictly_na}{TRUE or FALSE, defaults to FALSE. If TRUE,
-identifies and removes variables with exclusively NA values after the data
-have been cleaned.}
-
-\item{na_file}{TRUE or FALSE , if TRUE, this will write a csv file with
-the table of NA counts and proportions. If set to FALSE, it will print
-the table but not generate a csv file.}
+\item{na_file}{TRUE or FALSE, defaults to FALSE. If TRUE, this will write a
+csv file with the table of NA counts and proportions. If set to FALSE, it
+will print the table but not generate a csv file.}
 
 \item{full_table_print}{TRUE or FALSE, defaults to FALSE. If FALSE, the NAs
 table will only print the head of the resulting table. If TRUE, the NAs
 table will print the entire table of NAs.}
+
+\item{unidentified_to_0}{TRUE or FALSE, defaults to FALSE. If TRUE, converts
+values of 9 to 0 within variables with possible values of 0, 1, 9 (where 9
+represents "did not identify").}
+
+\item{convert_sex}{TRUE or FALSE, defaults to FALSE. If TRUE, converts variable
+'Sex' values of 2 to values of 0, providing a more traditional binary
+variable format.}
+
+\item{remove_strictly_na}{TRUE or FALSE, defaults to FALSE. If TRUE,
+identifies and removes variables with exclusively NA values after the data
+have been cleaned.}
 }
 \value{
 The cleaned dataset (additionally, a table of NA information if
