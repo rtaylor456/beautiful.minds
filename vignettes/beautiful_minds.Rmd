@@ -6,12 +6,15 @@ vignette: >
   %\VignetteIndexEntry{beautiful.minds}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteDepends(rpart)
 ---
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#"
+  comment = "#",
+  fig.width = 6,
+  fig.height = 4
 )
 ```
 
@@ -129,11 +132,14 @@ The parameter `full_table_print` defaults to FALSE. This allows the user to dete
 ```{r}
 # Analyze the NA values and print only the head of the NA table
 detox(data = py_20_sample)
-
-# Analyze the NA values and print the entire NA table to the console
-detox(data = py_20_sample, full_table_print = TRUE)
 ```
 
+```{r, eval = FALSE}
+# Analyze the NA values and print the entire NA table to the console
+# Note, we will not run this code for this demonstration, for the sake of 
+#   concise output
+detox(data = py_20_sample, full_table_print = TRUE)
+```
 
 #### `unidentified_to_0` 
 
@@ -193,12 +199,12 @@ dim(data_detoxed)
 ```
 
 
-## Application  
+## Combination of tasks
 
-The following shows an example of the operation of the detox function as well as the output of the analyze_nas function. These examples have been carefully selected to provide clarity without creating an extensive dataset output. Additionally, this demonstrates the effects of modifying various parameters within the function. For the purpose of all examples, the na_file parameter will be set to FALSE to avoid writing CSV files to the user's computer.
-```{r, eval = FALSE}
+The following shows an example of the operation of the detox function as well as the output of the analyze_nas function. These examples have been carefully selected to provide clarity without creating an extensive dataset output. Additionally, this demonstrates the effects of modifying various parameters within the function. For the purpose of all examples, the na_file parameter will be left as FALSE to avoid writing CSV files to the user's computer.
+```{r}
 # Run detox on a RSA-911 dataset with default values
-results <- detox(data = py_20_sample, na_file = FALSE)
+results <- detox(data = py_20_sample)
 
 # Program Year: removed unnecessary characters that will interfere with analysis
 head(py_20_sample$ProgramYear)
@@ -241,6 +247,79 @@ results_remove <- detox(data = py_20_sample, na_check = FALSE,
 dim(py_20_sample)
 # Dimensions of the detoxed dataset with all NA columns removed
 dim(results_remove)
+```
+
+## Application
+
+Now, we will provide a few examples, demonstrating the benefits of `detox` 
+cleaning before running analysis.
+
+First, we are able to run meaningful plots without additional adjustments. 
+As `detox` ensures appropriate variables are stored as numerics and dates, we 
+can produce the following plots:
+```{r}
+sample_cleaned <- detox(py_20_sample, unidentified_to_0 = TRUE, 
+                        convert_sex = TRUE, remove_strictly_na = TRUE)
+
+# look at the relationship between application dates and ages
+plot(sample_cleaned$applicationdate, sample_cleaned$age_app,
+     xlab = "Application Date", 
+     ylab = "Age at Application")
+```
+
+
+```{r}
+# look at the relationship of age at application and age at exit
+plot(sample_cleaned$age_app, sample_cleaned$age_exit, 
+     xlab = "Age at Application of Service",
+     ylab = "Age at Exit of Service")
+```
+
+Next, we can run machine learning techniques more easily on the data, especially
+those variables that we have converted to binary variables, using 
+`unidentified_to_0 = TRUE`. 
+
+While `lm` would automatically create dummy variables, the output here is 
+cleaner, and allows us to prevent creating 3 subgroups (1, 0, 9=NA) for the 
+binary variables included. It makes the following model easier to read and 
+interpret. 
+
+```{r}
+# fit the linear regression model
+try_lm <- lm(exithourlywage ~ age_app + sex + amerindian + asian + black +
+               white + hispanic + veteran + adult + 
+               dislocatedworker + fostercareyouth + homelessorrunaway +
+               jsacompserviceprovider, data = sample_cleaned)
+# look at the model output
+summary(try_lm)
+
+```
+
+More importantly, running classification methods, like regression trees, requires fewer preparation steps and glitches when we have our variables set up as binary values. In the following example, we will predict hourly wage at
+exit using a regression tree, built on key variables, like demographic 
+information and which service providers and purchases were made. 
+
+```{r, message = FALSE, fig.width = 8, fig.height = 6}
+# for the sake of demonstration, we will extract just the binary variables
+suppressPackageStartupMessages(library(tidyverse))
+library(rpart)
+selected_vars <- sample_cleaned |>
+  select_if(~ all(. %in% c(0, 1))) |>
+  names()
+
+# we will simplify our data set to make the tree formula easier by 
+#   extracting only our response variable, exithourlywage, and our 
+#   discussed predictory variables
+data_tree <- sample_cleaned |>
+  select(exithourlywage, all_of(selected_vars)) 
+
+# fit the tree model
+try_tree <- rpart(exithourlywage ~ . , data = data_tree, 
+                  control = rpart.control(maxdepth = 4))
+# plot the tree
+plot(try_tree)
+text(try_tree) # need this to see the text on tree
+
 ```
 
 ## Conclusion
