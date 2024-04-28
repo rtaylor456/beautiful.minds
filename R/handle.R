@@ -16,11 +16,23 @@ handle_year <- function(x) {
   return(year)
 }
 
-handle_nines <- function(data, all_demographic_cols) {
-  data[, (all_demographic_cols) := lapply(.SD, function(x) {
-    replace(x, x == 9, 0)
-  }), .SDcols = all_demographic_cols]
-  return(data)
+# handle_nines <- function(data, all_demographic_cols) {
+#   data[, (all_demographic_cols) := lapply(.SD, function(x) {
+#     replace(x, x == 9, 0)
+#   }), .SDcols = all_demographic_cols]
+#   return(data)
+# }
+
+handle_nines <- function(x, unidentified_to_0 = FALSE) {
+  # Replace NA values with 9
+  x[is.na(x)] <- 9
+
+  # If convert_9s is TRUE, convert 9s to 0s
+  if (unidentified_to_0) {
+    x[x == 9] <- 0
+  }
+
+  return(x)
 }
 
 

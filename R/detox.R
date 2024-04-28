@@ -34,6 +34,12 @@ detox <- function(data, na_check = TRUE, na_file = FALSE,
                   full_table_print = FALSE, unidentified_to_0 = FALSE,
                   convert_sex = FALSE,
                   remove_strictly_na = FALSE) {
+
+  if (!na_check && (na_file || full_table_print)){
+    stop(paste("na_check must be set equal to TRUE in order to use",
+    "na_file and full_table_print"))
+  }
+
   # Ensure data is a data.table
   setDT(data)
 
@@ -121,10 +127,14 @@ detox <- function(data, na_check = TRUE, na_file = FALSE,
   # }
 
   # Check if unidentified_to_0 is TRUE and any values in demographic columns are 9
-  if (unidentified_to_0) {
-    data <- handle_nines(data, all_demographic_cols)
-  }
+  # if (unidentified_to_0) {
+  #   data <- handle_nines(data, all_demographic_cols)
+  # }
 
+  data[, (all_demographic_cols) := lapply(.SD, function(x){
+    handle_nines(x, unidentified_to_0)
+    }),
+       .SDcols = all_demographic_cols]
 
   # # NA Check and analysis
   # if (na_check) {

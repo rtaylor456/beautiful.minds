@@ -91,9 +91,10 @@ tailored NA imputation, variable type conversion, and reorganization of variable
 
 #### `na_check`  
 
-The argument `na_check`, which defaults to true, will run the `analyze_nas` function (as seen above) after the cleaning process is over if set to TRUE. This is extremely useful as it will show the user the remaining NAs and other unfixed values, after the dataset has been cleaned in a table printed to the console, as well as a csv file if desired.
-Note: the parameters `na_file` and `full_table_print` may not be set equal to TRUE if
-`na_check` is set equal to FALSE. 
+The argument `na_check`, which defaults to TRUE, will run the `analyze_nas` function (as seen above) after the cleaning process is over. This is extremely useful as it will show the user the remaining NAs and other unfixed values, after the dataset has been cleaned. 
+This is shown in a table printed to the console, as well as a csv file if desired (as
+will be discussed in the `na_file` section). 
+Note: `na_check` can be set equal to FALSE, but the parameters `na_file` and `full_table_print` will not run and return an error, as they depend on `na_check`.
 
 ```{r}
 # Analyze the NA values
@@ -136,7 +137,7 @@ detox(data = py_20_sample, full_table_print = TRUE)
 
 #### `unidentified_to_0` 
 
-The `unidentified_to_0` parameter, will convert values of 9 to 0 within variables with possible values of 0, 1, and 9 (where 0 represents "did not identify"). This is most commonly used for demographic data such as ethnicity sub categories, veteran status, homelessness status, etc. 
+The `unidentified_to_0` parameter defaults to FALSE. When set to TRUE, it will convert values of 9 to 0 within variables with possible values of 0, 1, and 9 (where 0 represents "did not identify"). This is most commonly used for demographic data such as ethnicity sub categories, veteran status, homelessness status, etc. 
 
 ```{r}
 # Analyze the NA values and convert values of 9 to 0 where necessary
@@ -156,7 +157,7 @@ lapply(data_detoxed[, c("amerindian","asian", "veteran", "homelessorrunaway",
 
 #### `convert_sex`
 
-The `unidentified_to_0` parameter, will convert values of 9 to 0 within variables with possible values of 0, 1, and 9 (where 0 represents "did not identify"). This is most commonly used for demographic data such as ethnicity sub categories, veteran status, homelessness status, etc. 
+The `convert_sex` parameter defaults to FALSE. When set to TRUE, it will convert values of 2 to 0 for the "Sex" variable(s). The original values consist of 1 and 2, so this converts them to a more traditional binary format. 
 
 ```{r}
 # Analyze the NA values and convert values of 9 to 0 where necessary
@@ -174,7 +175,7 @@ unique(data_detoxed$sex)
 
 #### `remove_strictly_na`  
 
-The `remove_strictly_na` parameter will identify and remove variables with exclusively NA values after the data have been cleaned when set to TRUE. 
+The `remove_strictly_na` parameter defaults to FALSE. When set to TRUE, it will identify and remove variables with exclusively NA values after the data have been cleaned. 
 
 ```{r, eval = FALSE}
 # look at the NA summary BEFORE removing any variables
@@ -190,6 +191,7 @@ dim(data_detoxed)
 # we can see, we've maintained all of our original rows, but we have removed our
 #   empty variables
 ```
+
 
 ## Application  
 
