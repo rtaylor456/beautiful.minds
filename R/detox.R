@@ -16,14 +16,14 @@
 #'     table will only print the head of the resulting table. If TRUE, the NAs
 #'     table will print the entire table of NAs.
 #' @param unidentified_to_0 TRUE or FALSE, defaults to FALSE. If TRUE, converts
-#'     values of 9 to 0 within variables with possible values of 0, 1, 9 (where 9
-#'     represents "did not identify").
-#' @param convert_sex TRUE or FALSE, defaults to FALSE. If TRUE, converts variable
-#'     'Sex' values of 2 to values of 0, providing a more traditional binary
-#'     variable format.
+#'     values of 9 to 0 within variables with possible values of 0, 1, 9 (where
+#'     9 represents "did not identify").
+#' @param convert_sex TRUE or FALSE, defaults to FALSE. If TRUE, converts
+#'     variable Sex' values of 2 to values of 0, providing a more traditional
+#'     binary variable format.
 #' @param remove_strictly_na TRUE or FALSE, defaults to FALSE. If TRUE,
-#'     identifies and removes variables with exclusively NA values after the data
-#'     have been cleaned.
+#'     identifies and removes variables with exclusively NA values after the
+#'     data have been cleaned.
 #'
 #' @returns The cleaned dataset (additionally, a table of NA information if
 #'     na_check param is set to TRUE. See analyze_nas documentation for info.)
@@ -35,9 +35,9 @@ detox <- function(data, na_check = TRUE, na_file = FALSE,
                   convert_sex = FALSE,
                   remove_strictly_na = FALSE) {
 
-  if (!na_check && (na_file || full_table_print)){
+  if (!na_check && (na_file || full_table_print)) {
     stop(paste("na_check must be set equal to TRUE in order to use",
-    "na_file and full_table_print"))
+               "na_file and full_table_print"))
   }
 
   # Ensure data is a data.table
@@ -105,10 +105,10 @@ detox <- function(data, na_check = TRUE, na_file = FALSE,
   all_demographic_cols <- c(demographic_cols, add_demographic_cols)
 
 
-  data[, (all_demographic_cols) := lapply(.SD, function(x){
+  data[, (all_demographic_cols) := lapply(.SD, function(x) {
     handle_nines(x, unidentified_to_0)
-    }),
-       .SDcols = all_demographic_cols]
+  }),
+  .SDcols = all_demographic_cols]
 
 
   # Remove strictly NA columns if specified
@@ -129,6 +129,5 @@ detox <- function(data, na_check = TRUE, na_file = FALSE,
   }
 
   cat("Data has been detoxed\n")
-  # return(invisible())
   return(data)
 }

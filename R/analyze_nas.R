@@ -60,8 +60,6 @@ analyze_nas <- function(df, na_file = FALSE,
     na_df <- na_df[order(-na_df$NA_Proportion), ]
 
     # Format the NA_Proportion to show as a fixed decimal place
-    # na_df$NA_Proportion <- sprintf("%.3f", na_df$NA_Proportion)
-
     na_df$NA_Proportion <- sprintf(paste("%.", num_digits, "f", sep = ""),
                                    na_df$NA_Proportion)
 

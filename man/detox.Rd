@@ -30,16 +30,16 @@ table will only print the head of the resulting table. If TRUE, the NAs
 table will print the entire table of NAs.}
 
 \item{unidentified_to_0}{TRUE or FALSE, defaults to FALSE. If TRUE, converts
-values of 9 to 0 within variables with possible values of 0, 1, 9 (where 9
-represents "did not identify").}
+values of 9 to 0 within variables with possible values of 0, 1, 9 (where
+9 represents "did not identify").}
 
-\item{convert_sex}{TRUE or FALSE, defaults to FALSE. If TRUE, converts variable
-'Sex' values of 2 to values of 0, providing a more traditional binary
-variable format.}
+\item{convert_sex}{TRUE or FALSE, defaults to FALSE. If TRUE, converts
+variable Sex' values of 2 to values of 0, providing a more traditional
+binary variable format.}
 
 \item{remove_strictly_na}{TRUE or FALSE, defaults to FALSE. If TRUE,
-identifies and removes variables with exclusively NA values after the data
-have been cleaned.}
+identifies and removes variables with exclusively NA values after the
+data have been cleaned.}
 }
 \value{
 The cleaned dataset (additionally, a table of NA information if
