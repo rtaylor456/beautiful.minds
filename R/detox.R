@@ -87,6 +87,8 @@ detox <- function(data, na_check = TRUE, na_file = FALSE,
 
 
   sex_cols <- grep("sex", names(data), value = TRUE)
+  # oosexitdate will be mishandled without the following line of code:
+  sex_cols <- setdiff(sex_cols, date_cols)
   data[, (sex_cols) := lapply(.SD, function(x) handle_sex(x, convert_sex)),
        .SDcols = sex_cols]
 
