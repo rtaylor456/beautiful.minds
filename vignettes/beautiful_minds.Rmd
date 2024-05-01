@@ -31,10 +31,14 @@ However, despite its utility, the data presented in RSA-911 datasets is not imme
 
 To address this challenge, the `beautiful.mind` package has been developed. This tool streamlines the process by organizing and cleaning RSA-911 datasets into a format that is more accessible and user-friendly. With `beautiful.mind`, researchers can more easily transform raw data into a structured form that is primed for further analysis, thus facilitating deeper insights and more robust conclusions about the effectiveness of VR services without all the complex data wrangling. 
 
-## Installation
+## Installation and Loading
+The package can be installed with the following code:
+```{r setup, eval = FALSE}
+devtools::install_github("rtaylor456/beautiful.minds")
+```
 
-The package can be installed through `devtools::install_github("rtaylor456/beautiful.minds")` and then loaded into R.
-```{r setup}
+After being installed, we can load the package:
+```{r}
 library(beautiful.minds)
 ```
 
