@@ -42,3 +42,14 @@ handle_sex <- function(x, convert_sex = FALSE) {
 
   return(sex)
 }
+
+# for(col in comp_type_cols) {
+#   data[data[[col]] %in% c(" ", "NULL"), col] <- 0
+# }
+
+handle_blanks <- function(x) {
+  # Identify rows with values equal to " " or "NULL" in the specified column
+  x[x %in% c(" ", "NULL")] <- 0
+  return(x)
+}
+
